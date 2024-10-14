@@ -20,6 +20,7 @@ func NewController(engine *gin.Engine, uc *UseCase) {
 		carGroup.GET("", controller.GetAllCar())
 		carGroup.PUT("/:id", controller.UpdateCar())
 		carGroup.GET("/:id", controller.GetCarById())
+		carGroup.DELETE("/:id", controller.DeleteCar())
 	}
 }
 
@@ -135,5 +136,20 @@ func (c *Controller) GetCarById() gin.HandlerFunc {
 		}
 
 		response.NewResponse(http.StatusOK, "Success get car by id", carResponse).Send(ctx)
+	}
+}
+
+func (c *Controller) DeleteCar() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id := ctx.Param("id")
+		carId, _ := strconv.Atoi(id)
+
+		err := c.uc.DeleteCar(carId)
+		if err != nil {
+			response.NewResponse(http.StatusNotFound, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		response.NewResponse(http.StatusOK, "Success delete car", "").Send(ctx)
 	}
 }

@@ -65,3 +65,17 @@ func (uc *UseCase) GetCarById(carId int) (*v1Schema.Car, error) {
 	return car, nil
 
 }
+
+func (uc *UseCase) DeleteCar(carId int) error {
+	car, err := uc.carRepository.FindById(carId)
+	if err != nil {
+		return errors.New("car not found")
+	}
+
+	err = uc.carRepository.Delete(car)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

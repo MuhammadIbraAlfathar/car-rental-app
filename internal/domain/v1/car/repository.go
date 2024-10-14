@@ -11,6 +11,7 @@ type Repository interface {
 	GetAll() ([]*v1Schema.Car, error)
 	FindById(carId int) (*v1Schema.Car, error)
 	Update(car *v1Schema.Car) (*v1Schema.Car, error)
+	Delete(car *v1Schema.Car) error
 }
 
 type repository struct {
@@ -56,4 +57,8 @@ func (r *repository) Update(car *v1Schema.Car) (*v1Schema.Car, error) {
 	}
 
 	return car, nil
+}
+
+func (r *repository) Delete(car *v1Schema.Car) error {
+	return r.db.Delete(car).Error
 }
