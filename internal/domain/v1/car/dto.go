@@ -8,7 +8,7 @@ type CreateCarRequest struct {
 	DailyRent int    `json:"daily_rent" binding:"required"`
 }
 
-type CreateCustomerResponse struct {
+type CreateCarResponse struct {
 	Id        int       `json:"id"`
 	Name      string    `json:"name"`
 	Stock     int       `json:"stock"`

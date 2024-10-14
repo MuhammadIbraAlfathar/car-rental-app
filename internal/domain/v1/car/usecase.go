@@ -26,3 +26,12 @@ func (uc *UseCase) CreateCar(req *CreateCarRequest) (*v1Schema.Car, error) {
 
 	return newCar, nil
 }
+
+func (uc *UseCase) GetAllCar() ([]*v1Schema.Car, error) {
+	car, err := uc.carRepository.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	return car, nil
+}
