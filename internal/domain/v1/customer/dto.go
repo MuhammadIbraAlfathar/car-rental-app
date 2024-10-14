@@ -16,3 +16,9 @@ type CreateCustomerResponse struct {
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
+
+type UpdatedCustomerRequest struct {
+	Name        string `json:"name"`
+	Nik         string `json:"nik"`
+	PhoneNumber string `json:"phone_number"`
+}

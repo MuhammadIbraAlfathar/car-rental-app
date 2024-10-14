@@ -4,6 +4,7 @@ import (
 	"github.com/MuhammadIbraAlfathar/car-rental-app/internal/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 type Controller struct {
@@ -17,6 +18,7 @@ func NewController(engine *gin.Engine, uc *UseCase) {
 	{
 		customerGroup.POST("", controller.CreateCustomer())
 		customerGroup.GET("", controller.GetAllCustomer())
+		customerGroup.PUT("/:id", controller.UpdateCustomer())
 	}
 }
 
@@ -70,5 +72,35 @@ func (c *Controller) GetAllCustomer() gin.HandlerFunc {
 		}
 
 		response.NewResponse(http.StatusOK, "Success get data customer", customerResponses).Send(ctx)
+	}
+}
+
+func (c *Controller) UpdateCustomer() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id := ctx.Param("id")
+		customerId, _ := strconv.Atoi(id)
+
+		var req UpdatedCustomerRequest
+		if err := ctx.ShouldBindJSON(&req); err != nil {
+			response.NewResponse(http.StatusBadRequest, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		updatedCustomer, err := c.uc.UpdateCustomer(customerId, &req)
+		if err != nil {
+			response.NewResponse(http.StatusNotFound, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		updatedCustomerResponse := &CreateCustomerResponse{
+			Id:          updatedCustomer.Id,
+			Name:        updatedCustomer.Name,
+			Nik:         updatedCustomer.Nik,
+			PhoneNumber: updatedCustomer.PhoneNumber,
+			CreatedAt:   updatedCustomer.CreatedAt,
+			UpdatedAt:   updatedCustomer.UpdatedAt,
+		}
+
+		response.NewResponse(http.StatusOK, "Success update customer", updatedCustomerResponse).Send(ctx)
 	}
 }

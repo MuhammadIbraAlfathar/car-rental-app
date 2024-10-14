@@ -1,6 +1,9 @@
 package customerV1
 
-import v1Schema "github.com/MuhammadIbraAlfathar/car-rental-app/internal/schema/v1"
+import (
+	"errors"
+	v1Schema "github.com/MuhammadIbraAlfathar/car-rental-app/internal/schema/v1"
+)
 
 type UseCase struct {
 	customerRepository Repository
@@ -34,4 +37,21 @@ func (uc *UseCase) GetAllCustomer() ([]*v1Schema.Customer, error) {
 	}
 
 	return customer, nil
+}
+
+func (uc *UseCase) UpdateCustomer(customerId int, req *UpdatedCustomerRequest) (*v1Schema.Customer, error) {
+	customer, err := uc.customerRepository.FindById(customerId)
+	if err != nil {
+		return nil, errors.New("customer not found")
+	}
+	customer.Name = req.Name
+	customer.Nik = req.Nik
+	customer.PhoneNumber = req.PhoneNumber
+
+	updatedCustomer, err := uc.customerRepository.Update(customer)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedCustomer, nil
 }
