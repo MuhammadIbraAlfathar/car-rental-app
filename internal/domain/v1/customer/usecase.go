@@ -63,3 +63,13 @@ func (uc *UseCase) DeleteCustomer(customerId int) error {
 
 	return nil
 }
+
+func (uc *UseCase) GetCustomerById(customerId int) (*v1Schema.Customer, error) {
+	customer, err := uc.customerRepository.FindById(customerId)
+	if err != nil {
+		return nil, errors.New("customer not found")
+	}
+
+	return customer, nil
+
+}

@@ -20,6 +20,7 @@ func NewController(engine *gin.Engine, uc *UseCase) {
 		customerGroup.GET("", controller.GetAllCustomer())
 		customerGroup.PUT("/:id", controller.UpdateCustomer())
 		customerGroup.DELETE("/:id", controller.DeleteCustomer())
+		customerGroup.GET("/:id", controller.GetCustomerById())
 	}
 }
 
@@ -118,5 +119,33 @@ func (c *Controller) DeleteCustomer() gin.HandlerFunc {
 		}
 
 		response.NewResponse(http.StatusOK, "Success delete customer", "").Send(ctx)
+	}
+}
+
+func (c *Controller) GetCustomerById() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id := ctx.Param("id")
+		customerId, err := strconv.Atoi(id)
+		if err != nil {
+			response.NewResponse(http.StatusBadRequest, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		customer, err := c.uc.GetCustomerById(customerId)
+		if err != nil {
+			response.NewResponse(http.StatusNotFound, err.Error(), "something went wrong").Send(ctx)
+			return
+		}
+
+		customerResponse := &CreateCustomerResponse{
+			Id:          customer.Id,
+			Name:        customer.Name,
+			Nik:         customer.Nik,
+			PhoneNumber: customer.PhoneNumber,
+			CreatedAt:   customer.CreatedAt,
+			UpdatedAt:   customer.UpdatedAt,
+		}
+
+		response.NewResponse(http.StatusOK, "Success get customer by id", customerResponse).Send(ctx)
 	}
 }
