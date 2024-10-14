@@ -19,6 +19,7 @@ func NewController(engine *gin.Engine, uc *UseCase) {
 		carGroup.POST("", controller.CreateCar())
 		carGroup.GET("", controller.GetAllCar())
 		carGroup.PUT("/:id", controller.UpdateCar())
+		carGroup.GET("/:id", controller.GetCarById())
 	}
 }
 
@@ -78,7 +79,7 @@ func (c *Controller) GetAllCar() gin.HandlerFunc {
 func (c *Controller) UpdateCar() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		id := ctx.Param("id")
-		customerId, err := strconv.Atoi(id)
+		carId, err := strconv.Atoi(id)
 		if err != nil {
 			response.NewResponse(http.StatusBadRequest, err.Error(), "error").Send(ctx)
 			return
@@ -90,7 +91,7 @@ func (c *Controller) UpdateCar() gin.HandlerFunc {
 			return
 		}
 
-		updatedCar, err := c.uc.UpdateCar(customerId, &req)
+		updatedCar, err := c.uc.UpdateCar(carId, &req)
 		if err != nil {
 			response.NewResponse(http.StatusNotFound, err.Error(), "error").Send(ctx)
 			return
@@ -106,5 +107,33 @@ func (c *Controller) UpdateCar() gin.HandlerFunc {
 		}
 
 		response.NewResponse(http.StatusOK, "Success update car", updatedCarResponse).Send(ctx)
+	}
+}
+
+func (c *Controller) GetCarById() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id := ctx.Param("id")
+		carId, err := strconv.Atoi(id)
+		if err != nil {
+			response.NewResponse(http.StatusBadRequest, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		car, err := c.uc.GetCarById(carId)
+		if err != nil {
+			response.NewResponse(http.StatusNotFound, err.Error(), "something went wrong").Send(ctx)
+			return
+		}
+
+		carResponse := &CreateCarResponse{
+			Id:        car.Id,
+			Name:      car.Name,
+			Stock:     car.Stock,
+			DailyRent: car.DailyRent,
+			CreatedAt: car.CreatedAt,
+			UpdatedAt: car.UpdatedAt,
+		}
+
+		response.NewResponse(http.StatusOK, "Success get car by id", carResponse).Send(ctx)
 	}
 }

@@ -55,3 +55,13 @@ func (uc *UseCase) UpdateCar(carId int, req *UpdateCarRequest) (*v1Schema.Car, e
 
 	return updatedCustomer, nil
 }
+
+func (uc *UseCase) GetCarById(carId int) (*v1Schema.Car, error) {
+	car, err := uc.carRepository.FindById(carId)
+	if err != nil {
+		return nil, errors.New("car not found")
+	}
+
+	return car, nil
+
+}
