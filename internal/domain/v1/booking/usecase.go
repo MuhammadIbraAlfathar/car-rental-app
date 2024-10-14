@@ -70,3 +70,24 @@ func (uc *UseCase) GetAllBooking() ([]*v1Schema.Booking, error) {
 
 	return bookings, nil
 }
+
+func (uc *UseCase) UpdateBooking(bookID int, req *UpdatedBookingRequest) (*v1Schema.Booking, error) {
+	booking, err := uc.bookingRepository.FindById(bookID)
+	if err != nil {
+		return nil, errors.New("book not found")
+	}
+	startRent, _ := time.Parse("2006-01-02", req.StartRent)
+	endRent, _ := time.Parse("2006-01-02", req.EndRent)
+	booking.CustomerId = req.CustomerId
+	booking.CarId = req.CarId
+	booking.StartRent = startRent
+	booking.EndRent = endRent
+	booking.Finished = true
+
+	updatedBooking, err := uc.bookingRepository.Update(booking)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedBooking, nil
+}

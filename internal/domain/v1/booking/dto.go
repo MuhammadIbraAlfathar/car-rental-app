@@ -35,3 +35,23 @@ type CarResponse struct {
 	Stock     int    `json:"stock"`
 	DailyRent int    `json:"daily_rent"`
 }
+
+type UpdateBookingResponse struct {
+	Id         int       `json:"id"`
+	CustomerId int       `json:"customer_id"`
+	CarId      int       `json:"car_id"`
+	StartRent  string    `json:"start_rent"` // Format: YYYY-MM-DD
+	EndRent    string    `json:"end_rent"`   // Format: YYYY-MM-DD
+	TotalCost  int       `json:"total_cost"`
+	Finished   *bool     `json:"finished"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+}
+
+type UpdatedBookingRequest struct {
+	CustomerId int    `json:"customer_id"`
+	CarId      int    `json:"car_id"`
+	StartRent  string `json:"start_rent"` // Format: YYYY-MM-DD
+	EndRent    string `json:"end_rent"`   // Format: YYYY-MM-DD
+	Finished   *bool  `json:"finished"`
+}

@@ -4,6 +4,7 @@ import (
 	"github.com/MuhammadIbraAlfathar/car-rental-app/internal/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 type Controller struct {
@@ -17,6 +18,7 @@ func NewController(engine *gin.Engine, uc *UseCase) {
 	{
 		bookingGroup.POST("", controller.CreateCar())
 		bookingGroup.GET("", controller.GetAllBooking())
+		bookingGroup.PUT("/:id", controller.UpdateBooking())
 	}
 }
 
@@ -94,5 +96,42 @@ func (c *Controller) GetAllBooking() gin.HandlerFunc {
 		}
 
 		response.NewResponse(http.StatusOK, "Success get data booking", bookingResponses).Send(ctx)
+	}
+}
+
+func (c *Controller) UpdateBooking() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id := ctx.Param("id")
+		bookId, err := strconv.Atoi(id)
+		if err != nil {
+			response.NewResponse(http.StatusBadRequest, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		var req UpdatedBookingRequest
+		if err := ctx.ShouldBindJSON(&req); err != nil {
+			response.NewResponse(http.StatusBadRequest, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		updatedBook, err := c.uc.UpdateBooking(bookId, &req)
+		if err != nil {
+			response.NewResponse(http.StatusNotFound, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		bookResponse := &UpdateBookingResponse{
+			Id:         updatedBook.Id,
+			CustomerId: updatedBook.CustomerId,
+			CarId:      updatedBook.CarId,
+			StartRent:  updatedBook.StartRent.Format("2006-01-02"),
+			EndRent:    updatedBook.EndRent.Format("2006-01-02"),
+			TotalCost:  updatedBook.TotalCost,
+			Finished:   &updatedBook.Finished,
+			CreatedAt:  updatedBook.CreatedAt,
+			UpdatedAt:  updatedBook.UpdatedAt,
+		}
+
+		response.NewResponse(http.StatusOK, "Success update booking", bookResponse).Send(ctx)
 	}
 }
