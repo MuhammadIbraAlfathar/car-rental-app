@@ -16,6 +16,8 @@ func main() {
 		})
 	})
 
+	//test
+
 	godotenv.Load()
 	config.LoadEnv()
 	_, err := config.NewPostgres()
