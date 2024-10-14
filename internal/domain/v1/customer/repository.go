@@ -11,6 +11,7 @@ type Repository interface {
 	GetAll() ([]*v1Schema.Customer, error)
 	FindById(customerId int) (*v1Schema.Customer, error)
 	Update(customer *v1Schema.Customer) (*v1Schema.Customer, error)
+	Delete(customerId int) error
 }
 
 type repository struct {
@@ -56,4 +57,8 @@ func (r *repository) Update(customer *v1Schema.Customer) (*v1Schema.Customer, er
 	}
 
 	return customer, nil
+}
+
+func (r *repository) Delete(customerId int) error {
+	return r.db.Where("id = ?", customerId).Delete(&v1Schema.Customer{}).Error
 }

@@ -19,6 +19,7 @@ func NewController(engine *gin.Engine, uc *UseCase) {
 		customerGroup.POST("", controller.CreateCustomer())
 		customerGroup.GET("", controller.GetAllCustomer())
 		customerGroup.PUT("/:id", controller.UpdateCustomer())
+		customerGroup.DELETE("/:id", controller.DeleteCustomer())
 	}
 }
 
@@ -102,5 +103,20 @@ func (c *Controller) UpdateCustomer() gin.HandlerFunc {
 		}
 
 		response.NewResponse(http.StatusOK, "Success update customer", updatedCustomerResponse).Send(ctx)
+	}
+}
+
+func (c *Controller) DeleteCustomer() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id := ctx.Param("id")
+		customerId, _ := strconv.Atoi(id)
+
+		err := c.uc.DeleteCustomer(customerId)
+		if err != nil {
+			response.NewResponse(http.StatusNotFound, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		response.NewResponse(http.StatusOK, "Success delete customer", "").Send(ctx)
 	}
 }

@@ -55,3 +55,11 @@ func (uc *UseCase) UpdateCustomer(customerId int, req *UpdatedCustomerRequest) (
 
 	return updatedCustomer, nil
 }
+
+func (uc *UseCase) DeleteCustomer(customerId int) error {
+	if err := uc.customerRepository.Delete(customerId); err != nil {
+		return errors.New("user not found")
+	}
+
+	return nil
+}
