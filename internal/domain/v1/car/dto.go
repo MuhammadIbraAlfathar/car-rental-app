@@ -16,3 +16,9 @@ type CreateCarResponse struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+type UpdateCarRequest struct {
+	Name      string `json:"name"`
+	Stock     int    `json:"stock"`
+	DailyRent int    `json:"daily_rent"`
+}

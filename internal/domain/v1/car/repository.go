@@ -9,6 +9,8 @@ import (
 type Repository interface {
 	Create(car *v1Schema.Car) (*v1Schema.Car, error)
 	GetAll() ([]*v1Schema.Car, error)
+	FindById(carId int) (*v1Schema.Car, error)
+	Update(car *v1Schema.Car) (*v1Schema.Car, error)
 }
 
 type repository struct {
@@ -34,6 +36,23 @@ func (r *repository) GetAll() ([]*v1Schema.Car, error) {
 	var car []*v1Schema.Car
 	if err := r.db.Find(&car).Error; err != nil {
 		return nil, errors.New("no data in record")
+	}
+
+	return car, nil
+}
+
+func (r *repository) FindById(carId int) (*v1Schema.Car, error) {
+	var car *v1Schema.Car
+	if err := r.db.First(&car, carId).Error; err != nil {
+		return nil, err
+	}
+
+	return car, nil
+}
+
+func (r *repository) Update(car *v1Schema.Car) (*v1Schema.Car, error) {
+	if err := r.db.Save(car).Error; err != nil {
+		return nil, err
 	}
 
 	return car, nil

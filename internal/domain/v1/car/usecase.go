@@ -1,6 +1,9 @@
 package carV1
 
-import v1Schema "github.com/MuhammadIbraAlfathar/car-rental-app/internal/schema/v1"
+import (
+	"errors"
+	v1Schema "github.com/MuhammadIbraAlfathar/car-rental-app/internal/schema/v1"
+)
 
 type UseCase struct {
 	carRepository Repository
@@ -34,4 +37,21 @@ func (uc *UseCase) GetAllCar() ([]*v1Schema.Car, error) {
 	}
 
 	return car, nil
+}
+
+func (uc *UseCase) UpdateCar(carId int, req *UpdateCarRequest) (*v1Schema.Car, error) {
+	car, err := uc.carRepository.FindById(carId)
+	if err != nil {
+		return nil, errors.New("car not found")
+	}
+	car.Name = req.Name
+	car.Stock = req.Stock
+	car.DailyRent = req.DailyRent
+
+	updatedCustomer, err := uc.carRepository.Update(car)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedCustomer, nil
 }
