@@ -26,3 +26,12 @@ func (uc *UseCase) CreateCustomer(req *CreateCustomerRequest) (*v1Schema.Custome
 
 	return newCustomer, nil
 }
+
+func (uc *UseCase) GetAllCustomer() ([]*v1Schema.Customer, error) {
+	customer, err := uc.customerRepository.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	return customer, nil
+}
