@@ -1,4 +1,4 @@
-package driverIncentiveV2
+package bookingV2
 
 import (
 	v2 "github.com/MuhammadIbraAlfathar/car-rental-app/internal/schema/v2"
@@ -6,7 +6,7 @@ import (
 )
 
 type Repository interface {
-	Create(driverIncentive *v2.DriverIncentive) (*v2.DriverIncentive, error)
+	Create(booking *v2.BookingNew) (*v2.BookingNew, error)
 }
 
 type repository struct {
@@ -19,11 +19,11 @@ func NewRepository(db *gorm.DB) Repository {
 	}
 }
 
-func (r *repository) Create(driverIncentive *v2.DriverIncentive) (*v2.DriverIncentive, error) {
-	err := r.db.Create(&driverIncentive).Error
+func (r *repository) Create(booking *v2.BookingNew) (*v2.BookingNew, error) {
+	err := r.db.Create(&booking).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return driverIncentive, nil
+	return booking, nil
 }
