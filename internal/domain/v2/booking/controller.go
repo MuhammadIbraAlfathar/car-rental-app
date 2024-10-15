@@ -4,6 +4,7 @@ import (
 	"github.com/MuhammadIbraAlfathar/car-rental-app/internal/response"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 )
 
 type Controller struct {
@@ -17,6 +18,7 @@ func NewController(engine *gin.Engine, uc *UseCase) {
 	{
 		bookingGroup.POST("", controller.CreateBooking())
 		bookingGroup.GET("", controller.GetAllBooking())
+		bookingGroup.GET("/:id", controller.GetBookingByCustomerId())
 	}
 
 }
@@ -71,6 +73,46 @@ func (c *Controller) GetAllBooking() gin.HandlerFunc {
 					MembershipId: i.Customer.MembershipId,
 				},
 				CarId: i.CarId,
+				Car: CarResponse{
+					Id:        i.Car.Id,
+					Name:      i.Car.Name,
+					Stock:     i.Car.Stock,
+					DailyRent: i.Car.DailyRent,
+				},
+				StartRent:       i.StartRent.Format("2006-01-02"),
+				EndRent:         i.EndRent.Format("2006-01-02"),
+				TotalCost:       i.TotalCost,
+				Discount:        i.Discount,
+				BookTypeId:      i.BookingTypeId,
+				DriverId:        i.DriverId,
+				TotalDriverCost: i.TotalDriverCost,
+				Finished:        &i.Finished,
+				CreatedAt:       i.CreatedAt,
+			}
+
+			bookingResponses = append(bookingResponses, bookResponse)
+		}
+
+		response.NewResponse(http.StatusOK, "Success get data booking", bookingResponses).Send(ctx)
+	}
+}
+
+func (c *Controller) GetBookingByCustomerId() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id := ctx.Param("id")
+		customerId, _ := strconv.Atoi(id)
+		bookings, err := c.uc.GetBookingByCustomerId(customerId)
+		if err != nil {
+			response.NewResponse(http.StatusInternalServerError, err.Error(), "something went wrong").Send(ctx)
+			return
+		}
+
+		var bookingResponses []*BookingResponseByUserId
+		for _, i := range bookings {
+			bookResponse := &BookingResponseByUserId{
+				Id:         i.Id,
+				CustomerId: i.CustomerId,
+				CarId:      i.CarId,
 				Car: CarResponse{
 					Id:        i.Car.Id,
 					Name:      i.Car.Name,

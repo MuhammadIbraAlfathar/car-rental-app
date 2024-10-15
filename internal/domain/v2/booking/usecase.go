@@ -134,3 +134,13 @@ func (uc *UseCase) GetAllBooking() ([]*v2.BookingNew, error) {
 
 	return bookings, nil
 }
+
+func (uc *UseCase) GetBookingByCustomerId(customerId int) ([]*v2.BookingNew, error) {
+	bookings, err := uc.bookingRepository.FindByCustomerId(customerId)
+	if err != nil {
+		return nil, errors.New("data booking not found")
+	}
+
+	return bookings, nil
+
+}
