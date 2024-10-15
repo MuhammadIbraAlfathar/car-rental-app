@@ -91,3 +91,27 @@ func (uc *UseCase) UpdateBooking(bookID int, req *UpdatedBookingRequest) (*v1Sch
 
 	return updatedBooking, nil
 }
+
+func (uc *UseCase) GetBookingById(bookId int) (*v1Schema.Booking, error) {
+	booking, err := uc.bookingRepository.FindById(bookId)
+	if err != nil {
+		return nil, errors.New("data booking not found")
+	}
+
+	return booking, nil
+
+}
+
+func (uc *UseCase) DeleteBooking(bookId int) error {
+	booking, err := uc.bookingRepository.FindById(bookId)
+	if err != nil {
+		return errors.New("booking not found")
+	}
+
+	err = uc.bookingRepository.Delete(booking)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

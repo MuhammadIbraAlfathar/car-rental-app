@@ -19,6 +19,8 @@ func NewController(engine *gin.Engine, uc *UseCase) {
 		bookingGroup.POST("", controller.CreateCar())
 		bookingGroup.GET("", controller.GetAllBooking())
 		bookingGroup.PUT("/:id", controller.UpdateBooking())
+		bookingGroup.GET("/:id", controller.GetBookingById())
+		bookingGroup.DELETE("/:id", controller.DeleteBooking())
 	}
 }
 
@@ -35,17 +37,7 @@ func (c *Controller) CreateCar() gin.HandlerFunc {
 			response.NewResponse(http.StatusInternalServerError, err.Error(), "something went wrong").Send(ctx)
 			return
 		}
-
-		//carResponse := &CreateCarResponse{
-		//	Id:        newCar.Id,
-		//	Name:      newCar.Name,
-		//	Stock:     newCar.Stock,
-		//	DailyRent: newCar.DailyRent,
-		//	CreatedAt: newCar.CreatedAt,
-		//	UpdatedAt: newCar.UpdatedAt,
-		//}
-
-		bookResponse := &BookingResponse{
+		bookResponse := &CreateBookingResponse{
 			Id:         newBooking.Id,
 			CustomerId: newBooking.CustomerId,
 			CarId:      newBooking.CarId,
@@ -133,5 +125,55 @@ func (c *Controller) UpdateBooking() gin.HandlerFunc {
 		}
 
 		response.NewResponse(http.StatusOK, "Success update booking", bookResponse).Send(ctx)
+	}
+}
+
+func (c *Controller) GetBookingById() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id := ctx.Param("id")
+		bookId, err := strconv.Atoi(id)
+		if err != nil {
+			response.NewResponse(http.StatusBadRequest, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		booking, err := c.uc.GetBookingById(bookId)
+		if err != nil {
+			response.NewResponse(http.StatusNotFound, err.Error(), "something went wrong").Send(ctx)
+			return
+		}
+
+		bookResponse := &GetBookingByIdResponse{
+			Id:         booking.Id,
+			CustomerId: booking.CustomerId,
+			CarId:      booking.CarId,
+			Car: CarResponse{
+				Id:        booking.Car.Id,
+				Name:      booking.Car.Name,
+				Stock:     booking.Car.Stock,
+				DailyRent: booking.Car.DailyRent,
+			},
+			StartRent: booking.StartRent.Format("2006-01-02"),
+			EndRent:   booking.EndRent.Format("2006-01-02"),
+			TotalCost: booking.TotalCost,
+			Finished:  &booking.Finished,
+			CreatedAt: booking.CreatedAt,
+		}
+		response.NewResponse(http.StatusOK, "Success get booking by id", bookResponse).Send(ctx)
+	}
+}
+
+func (c *Controller) DeleteBooking() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id := ctx.Param("id")
+		bookId, _ := strconv.Atoi(id)
+
+		err := c.uc.DeleteBooking(bookId)
+		if err != nil {
+			response.NewResponse(http.StatusNotFound, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		response.NewResponse(http.StatusOK, "Success delete booking", "").Send(ctx)
 	}
 }
