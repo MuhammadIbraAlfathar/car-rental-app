@@ -72,19 +72,51 @@ func (uc *UseCase) GetAllBooking() ([]*v1Schema.Booking, error) {
 }
 
 func (uc *UseCase) UpdateBooking(bookID int, req *UpdatedBookingRequest) (*v1Schema.Booking, error) {
-	booking, err := uc.bookingRepository.FindById(bookID)
+	carId := req.CarId
+	car, err := uc.carRepository.FindById(carId)
 	if err != nil {
-		return nil, errors.New("book not found")
+		return nil, errors.New("car not found")
 	}
-	startRent, _ := time.Parse("2006-01-02", req.StartRent)
-	endRent, _ := time.Parse("2006-01-02", req.EndRent)
-	booking.CustomerId = req.CustomerId
-	booking.CarId = req.CarId
-	booking.StartRent = startRent
-	booking.EndRent = endRent
-	booking.Finished = true
+	carDailyRent := car.DailyRent
 
-	updatedBooking, err := uc.bookingRepository.Update(booking)
+	booking, err := uc.bookingRepository.FindById(bookID)
+
+	startRent, err := time.Parse("2006-01-02", req.StartRent)
+	if err != nil {
+		return nil, errors.New("format start_date must YYYY-MM-DD")
+	}
+
+	endRent, err := time.Parse("2006-01-02", req.EndRent)
+	if err != nil {
+		return nil, errors.New("format end_rent must YYYY-MM-DD")
+	}
+
+	difference := endRent.Sub(startRent)
+	differenceDays := int(difference.Hours() / 24)
+	if differenceDays < 0 {
+		differenceDays = -differenceDays
+	}
+
+	totalRent := differenceDays * carDailyRent
+
+	bookingEntity := v1Schema.Booking{
+		Id:         booking.Id,
+		CustomerId: req.CustomerId,
+		CarId:      req.CarId,
+		StartRent:  startRent,
+		EndRent:    endRent,
+		TotalCost:  totalRent,
+		Finished:   true,
+		CreatedAt:  booking.CreatedAt,
+	}
+
+	//booking.CustomerId = req.CustomerId
+	//booking.CarId = req.CarId
+	//booking.StartRent = startRent
+	//booking.EndRent = endRent
+	//booking.Finished = true
+
+	updatedBooking, err := uc.bookingRepository.Update(&bookingEntity)
 	if err != nil {
 		return nil, err
 	}
