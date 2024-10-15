@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/MuhammadIbraAlfathar/car-rental-app/config"
+	bookingV1 "github.com/MuhammadIbraAlfathar/car-rental-app/internal/domain/v1/booking"
 	carV1 "github.com/MuhammadIbraAlfathar/car-rental-app/internal/domain/v1/car"
 	customerV1 "github.com/MuhammadIbraAlfathar/car-rental-app/internal/domain/v1/customer"
 	"github.com/gin-gonic/gin"
@@ -37,6 +38,11 @@ func main() {
 	carRepo := carV1.NewRepository(db)
 	carUseCase := carV1.NewUseCase(carRepo)
 	carV1.NewController(r, carUseCase)
+
+	//BOOKING
+	bookingRepo := bookingV1.NewRepository(db)
+	bookingUseCase := bookingV1.NewUseCase(bookingRepo, carRepo)
+	bookingV1.NewController(r, bookingUseCase)
 
 	r.Run()
 }
