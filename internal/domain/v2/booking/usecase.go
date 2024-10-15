@@ -125,3 +125,12 @@ func (uc *UseCase) CreateBooking(req *CreateBookingRequest) (*v2.BookingNew, err
 	return booking, nil
 
 }
+
+func (uc *UseCase) GetAllBooking() ([]*v2.BookingNew, error) {
+	bookings, err := uc.bookingRepository.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	return bookings, nil
+}

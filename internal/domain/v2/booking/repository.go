@@ -1,12 +1,14 @@
 package bookingV2
 
 import (
+	"errors"
 	v2 "github.com/MuhammadIbraAlfathar/car-rental-app/internal/schema/v2"
 	"gorm.io/gorm"
 )
 
 type Repository interface {
 	Create(booking *v2.BookingNew) (*v2.BookingNew, error)
+	GetAll() ([]*v2.BookingNew, error)
 }
 
 type repository struct {
@@ -25,5 +27,16 @@ func (r *repository) Create(booking *v2.BookingNew) (*v2.BookingNew, error) {
 		return nil, err
 	}
 
+	return booking, nil
+}
+
+func (r *repository) GetAll() ([]*v2.BookingNew, error) {
+	var booking []*v2.BookingNew
+	if r.db == nil {
+		return nil, errors.New("database connection is nil")
+	}
+	if err := r.db.Preload("Customer").Preload("Car").Find(&booking).Error; err != nil {
+		return nil, err
+	}
 	return booking, nil
 }

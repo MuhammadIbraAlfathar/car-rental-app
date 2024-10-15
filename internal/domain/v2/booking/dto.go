@@ -24,3 +24,34 @@ type CreateBookingResponse struct {
 	Finished        *bool     `json:"finished"`
 	CreatedAt       time.Time `json:"created_at"`
 }
+
+type BookingResponse struct {
+	Id              int                     `json:"id"`
+	CustomerId      int                     `json:"customer_id"`
+	Customer        CustomerBookingResponse `json:"customer"`
+	CarId           int                     `json:"car_id"`
+	Car             CarResponse             `json:"car"`
+	BookTypeId      int                     `json:"book_type_id"`
+	DriverId        int                     `json:"driver_id"`
+	StartRent       string                  `json:"start_rent"` // Format: YYYY-MM-DD
+	EndRent         string                  `json:"end_rent"`   // Format: YYYY-MM-DD
+	TotalCost       int                     `json:"total_cost"`
+	Discount        int                     `json:"discount"`
+	TotalDriverCost int                     `json:"total_driver_cost"`
+	Finished        *bool                   `json:"finished"`
+	CreatedAt       time.Time               `json:"created_at"`
+}
+
+type CustomerBookingResponse struct {
+	Id           int    `json:"id"`
+	Name         string `json:"name"`
+	PhoneNumber  string `json:"phone_number"`
+	MembershipId int    `json:"membership_id"`
+}
+
+type CarResponse struct {
+	Id        int    `json:"id"`
+	Name      string `json:"name"`
+	Stock     int    `json:"stock"`
+	DailyRent int    `json:"daily_rent"`
+}
