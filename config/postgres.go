@@ -40,6 +40,11 @@ func migratePostgresTable(db *gorm.DB) error {
 
 		//V2
 		&v2.CustomerNew{},
+		&v2.BookingNew{},
+		&v2.Driver{},
+		&v2.BookingType{},
+		&v2.DriverIncentive{},
+		&v2.Membership{},
 	}
 
 	if err := db.AutoMigrate(models...); err != nil {
