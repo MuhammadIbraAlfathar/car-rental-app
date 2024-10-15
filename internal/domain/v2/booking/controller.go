@@ -19,6 +19,8 @@ func NewController(engine *gin.Engine, uc *UseCase) {
 		bookingGroup.POST("", controller.CreateBooking())
 		bookingGroup.GET("", controller.GetAllBooking())
 		bookingGroup.GET("/:id", controller.GetBookingByCustomerId())
+		bookingGroup.PUT("/:id", controller.UpdateBooking())
+		bookingGroup.DELETE("/:id", controller.DeleteBooking())
 	}
 
 }
@@ -134,5 +136,58 @@ func (c *Controller) GetBookingByCustomerId() gin.HandlerFunc {
 		}
 
 		response.NewResponse(http.StatusOK, "Success get data booking", bookingResponses).Send(ctx)
+	}
+}
+
+func (c *Controller) UpdateBooking() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id := ctx.Param("id")
+		bookId, err := strconv.Atoi(id)
+		if err != nil {
+			response.NewResponse(http.StatusBadRequest, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		var req CreateBookingRequest
+		if err := ctx.ShouldBindJSON(&req); err != nil {
+			response.NewResponse(http.StatusBadRequest, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		updatedBook, err := c.uc.UpdateBooking(bookId, &req)
+		if err != nil {
+			response.NewResponse(http.StatusNotFound, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		bookResponse := &UpdatedBookingResponse{
+			Id:              updatedBook.Id,
+			CustomerId:      updatedBook.CustomerId,
+			CarId:           updatedBook.CarId,
+			StartRent:       updatedBook.StartRent.Format("2006-01-02"),
+			EndRent:         updatedBook.EndRent.Format("2006-01-02"),
+			TotalCost:       updatedBook.TotalCost,
+			Finished:        &updatedBook.Finished,
+			Discount:        updatedBook.Discount,
+			TotalDriverCost: updatedBook.TotalDriverCost,
+			UpdatedAt:       updatedBook.UpdatedAt,
+		}
+
+		response.NewResponse(http.StatusOK, "Success update booking", bookResponse).Send(ctx)
+	}
+}
+
+func (c *Controller) DeleteBooking() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id := ctx.Param("id")
+		bookId, _ := strconv.Atoi(id)
+
+		err := c.uc.DeleteBooking(bookId)
+		if err != nil {
+			response.NewResponse(http.StatusNotFound, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		response.NewResponse(http.StatusOK, "Success delete booking", "").Send(ctx)
 	}
 }

@@ -10,6 +10,9 @@ type Repository interface {
 	Create(booking *v2.BookingNew) (*v2.BookingNew, error)
 	GetAll() ([]*v2.BookingNew, error)
 	FindByCustomerId(customerId int) ([]*v2.BookingNew, error)
+	FindById(bookId int) (*v2.BookingNew, error)
+	Update(booking *v2.BookingNew) (*v2.BookingNew, error)
+	Delete(booking *v2.BookingNew) error
 }
 
 type repository struct {
@@ -49,4 +52,25 @@ func (r *repository) FindByCustomerId(customerId int) ([]*v2.BookingNew, error) 
 	}
 
 	return booking, nil
+}
+
+func (r *repository) FindById(bookId int) (*v2.BookingNew, error) {
+	var booking *v2.BookingNew
+	if err := r.db.Preload("Customer").Preload("Car").First(&booking, bookId).Error; err != nil {
+		return nil, err
+	}
+
+	return booking, nil
+}
+
+func (r *repository) Update(booking *v2.BookingNew) (*v2.BookingNew, error) {
+	if err := r.db.Save(&booking).Error; err != nil {
+		return nil, err
+	}
+
+	return booking, nil
+}
+
+func (r *repository) Delete(booking *v2.BookingNew) error {
+	return r.db.Delete(booking).Error
 }
