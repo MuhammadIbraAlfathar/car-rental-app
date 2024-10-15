@@ -19,6 +19,8 @@ func NewController(engine *gin.Engine, uc *UseCase) {
 		customerGroup.POST("", controller.CreateCustomer())
 		customerGroup.GET("", controller.GetAllCustomer())
 		customerGroup.GET("/:id", controller.GetCustomerById())
+		customerGroup.PUT("/:id", controller.UpdateCustomer())
+		customerGroup.DELETE("/:id", controller.DeleteCustomer())
 	}
 }
 
@@ -103,5 +105,51 @@ func (c *Controller) GetCustomerById() gin.HandlerFunc {
 		}
 
 		response.NewResponse(http.StatusOK, "Success get customer by id", customerResponse).Send(ctx)
+	}
+}
+
+func (c *Controller) UpdateCustomer() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id := ctx.Param("id")
+		customerId, _ := strconv.Atoi(id)
+
+		var req UpdatedCustomerRequest
+		if err := ctx.ShouldBindJSON(&req); err != nil {
+			response.NewResponse(http.StatusBadRequest, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		updatedCustomer, err := c.uc.UpdateCustomer(customerId, &req)
+		if err != nil {
+			response.NewResponse(http.StatusNotFound, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		updatedCustomerResponse := &CreateCustomerResponse{
+			Id:           updatedCustomer.Id,
+			Name:         updatedCustomer.Name,
+			Nik:          updatedCustomer.Nik,
+			PhoneNumber:  updatedCustomer.PhoneNumber,
+			MembershipId: updatedCustomer.MembershipId,
+			CreatedAt:    updatedCustomer.CreatedAt,
+			UpdatedAt:    updatedCustomer.UpdatedAt,
+		}
+
+		response.NewResponse(http.StatusOK, "Success update customer", updatedCustomerResponse).Send(ctx)
+	}
+}
+
+func (c *Controller) DeleteCustomer() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		id := ctx.Param("id")
+		customerId, _ := strconv.Atoi(id)
+
+		err := c.uc.DeleteCustomer(customerId)
+		if err != nil {
+			response.NewResponse(http.StatusNotFound, err.Error(), "error").Send(ctx)
+			return
+		}
+
+		response.NewResponse(http.StatusOK, "Success delete customer", "").Send(ctx)
 	}
 }
