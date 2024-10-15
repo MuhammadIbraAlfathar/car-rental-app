@@ -2,6 +2,7 @@ package config
 
 import (
 	v1Schema "github.com/MuhammadIbraAlfathar/car-rental-app/internal/schema/v1"
+	v2 "github.com/MuhammadIbraAlfathar/car-rental-app/internal/schema/v2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -28,6 +29,7 @@ func NewPostgres() (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return db, nil
 }
 
@@ -36,6 +38,14 @@ func migratePostgresTable(db *gorm.DB) error {
 		&v1Schema.Customer{},
 		&v1Schema.Car{},
 		&v1Schema.Booking{},
+
+		//V2
+		&v2.CustomerNew{},
+		&v2.BookingNew{},
+		&v2.Driver{},
+		&v2.BookingType{},
+		&v2.DriverIncentive{},
+		&v2.Membership{},
 	}
 
 	if err := db.AutoMigrate(models...); err != nil {
